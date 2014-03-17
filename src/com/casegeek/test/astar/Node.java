@@ -16,7 +16,12 @@ public class Node {
 		
 		//Get score from starting position
 		if (parent!=null) {
-			this.s = parent.getS()+1;
+			if (x == parent.getX() || y == parent.getY()) {
+				this.s = parent.getS()+1;
+			} else {
+				this.s = parent.getS()+2;
+			}
+			
 		}		
 		
 		//Calculate cost

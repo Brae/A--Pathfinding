@@ -1,5 +1,10 @@
 package com.casegeek.test.astar;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -7,33 +12,41 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 public class Main {
 	
 	private ArrayList<Node> openList = new ArrayList<Node>();
 	private ArrayList<Node> closedList = new ArrayList<Node>();
+	private ArrayList<Node> path = new ArrayList<Node>();
 	private Robot robot;
 	private Room room;
 	private Picture pic;
+	private int ranX, ranY;
 	
 	public Main() {
+		System.out.println("CREATING");
 		robot = new Robot();
 		room = new Room(8);
 		pic = new Picture(room, robot);
 		pic.draw(room, robot);
-	}
-
-	public static void main(String[] args) {
-		Main app = new Main();
-		app.run();
+		System.out.println("CREATED");
 	}
 	
-	private void run() {
+	public static void main(String[] args) {
+		Main main = new Main();
+		main.run();
+	}
+	
+	public void run() {	
 		Random ran = new Random();
-		int ranX = ran.nextInt(18)+1;
-		int ranY = ran.nextInt(18)+1;	
+		ranX = ran.nextInt(18) + 1;
+		ranY = ran.nextInt(18) + 1;
 		room.setTarget(ranX, ranY);
-		pic.draw(room, robot);
-		
 		//Add the starting node to open list
 		openList.add(new Node(robot.get_xpos(), robot.get_ypos(), null,
 				ranX, ranY));
@@ -49,6 +62,7 @@ public class Main {
 				dump(openList);
 				markPath(currNode);
 				pic.draw(room, robot);
+				move(path, ranX, ranY);
 				break;
 			//else
 			} else {
@@ -113,7 +127,7 @@ public class Main {
 	
 	private void markPath(Node end) {
 		boolean complete = false;
-		ArrayList<Node> path = new ArrayList<Node>();
+		path.clear();
 		path.add(end.getParent());
 		room.setPath(end.getParent().getX(), end.getParent().getY());
 		int counter = 0;
@@ -142,7 +156,7 @@ public class Main {
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
 			for (Node n:array) {
-				bw.append(n.toString());
+				bw.append("\n" + n.toString());
 			}		
 			bw.close();
 
@@ -151,6 +165,17 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void move(ArrayList<Node> path, int destX, int destY) {
+		for (int i=path.size()-1; i>-1; i--) {
+			robot.setX(path.get(i).getX());
+			robot.setY(path.get(i).getY());
+			pic.draw(room, robot);
+		}
+		robot.setX(destX);
+		robot.setY(destY);
+		pic.draw(room, robot);
 	}
 
 }
